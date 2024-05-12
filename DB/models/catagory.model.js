@@ -13,6 +13,11 @@ const catagorySchema= new Schema({
         type: String,
         required : true
     },
+    status:{
+        type:String,
+        default:'Active',
+        enum:['Active','InActive'],
+    },
     createdBy: { 
         type:Types.ObjectId,
         ref:'User',

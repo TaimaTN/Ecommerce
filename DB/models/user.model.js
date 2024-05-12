@@ -20,7 +20,7 @@ const userSchema = new Schema({
         default: 'Male'
     },
     image: {
-        type: object
+        type: Object
     },
     status:{
         type:String,
