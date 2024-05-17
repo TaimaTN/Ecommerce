@@ -27,9 +27,14 @@ const userSchema = new Schema({
         enum:['Active','InActive'],
         default:'Active'
     },
+    sendCode:{
+        type: String,
+        default:null
+    },
     role:{
         type: String ,
-        enum:['User','Admin']
+        enum:['User','Admin'],
+        default: 'User'
     },
     phone: String,
     address: String

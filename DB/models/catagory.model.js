@@ -1,36 +1,47 @@
-import {Schema,Types,model} from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 
-const catagorySchema= new Schema({
-    name:{
-        type:String,
+const catagorySchema = new Schema({
+    name: {
+        type: String,
         unique: true
     },
-    image:{
+    image: {
         type: Object,
         required: true,
     },
-    slug:{
+    slug: {
         type: String,
-        required : true
+        required: true
     },
-    status:{
-        type:String,
-        default:'Active',
-        enum:['Active','InActive'],
+    status: {
+        type: String,
+        default: 'Active',
+        enum: ['Active', 'InActive'],
     },
-    createdBy: { 
-        type:Types.ObjectId,
-        ref:'User',
+    createdBy: {
+        type: Types.ObjectId,
+        ref: 'User',
         // required: true
     },
-    updatedBy: { 
-        type:Types.ObjectId,
-        ref:'User',
+    updatedBy: {
+        type: Types.ObjectId,
+        ref: 'User',
         // required: true
     }
-},{
-    timestamps:true
+}, {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-const catagoryModel = model('Catagory',catagorySchema);
+//build variual field in catagory collection
+catagorySchema.virtual("subcatagories",
+    {
+        localField: '_id',
+        foreignField: 'catagoryId',
+        ref: 'Subcatagory'
+    }
+);
+
+const catagoryModel = model('Catagory', catagorySchema);
 export default catagoryModel;

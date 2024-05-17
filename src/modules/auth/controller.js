@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs';
-import userModel from "../../../DB/models/user.model.js";
 import jwt from 'jsonwebtoken';
+import userModel from "../../../DB/models/user.model.js";
+import { sendEmail } from '../../utls/email.js';
+import { customAlphabet } from 'nanoid';
 
 const register = async (req, res) => {
     try {
@@ -12,6 +14,7 @@ const register = async (req, res) => {
         const hashPass = bcrypt.hashSync(password, parseInt(process.env.SALT_ROUND));
 
         const Cuser = await userModel.create({ email, userName, password: hashPass });
+        await sendEmail(email, `Weclome`, `<h2>hello yA ${userName}</h2>`);
         return res.status(201).json({ message: "sucess user registeration", Cuser });
     } catch (er) {
         return res.status(400).json({ message: "bad request", error: er.stack });
@@ -37,4 +40,32 @@ const login = async (req, res) => {
 
 }
 
-export { register, login }
+const sendCode = async (req, res) => {
+    const { email } = req.body;
+    const code = customAlphabet('1234567890abcdef', 4)();
+
+    const u = await userModel.findOneAndUpdate({ email }, { sendCode: code });
+
+    if (!u) return res.status(400).json({ Message: 'invalid email' });
+
+    await sendEmail(email, `Reset Password `, `<h2>code ${code}</h2>`);
+    return res.status(200).json({ Message: 'sucess sending code', });
+
+};
+
+const forgetPasswOrd = async (req, res)=>{
+    const { email, newpassword, code } = req.body;
+
+    const user = await userModel.findOne({ email }).select('sendCode password');
+    if (!user) return res.status(400).json({ Message: 'invalid email, not found user' });
+    
+     if (user.sendCode != code) return res.status(400).json({ Message: 'invalid code' });
+
+     user.password=bcrypt.hashSync(newpassword,parseInt(process.env.SALT_ROUND));
+     user.sendCode=null;
+     user.save();
+     
+    return res.status(200).json({ Message: 'sucess update the password', user });
+};
+
+export { register, login, sendCode, forgetPasswOrd }
