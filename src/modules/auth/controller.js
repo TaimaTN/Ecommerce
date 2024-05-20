@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { customAlphabet } from 'nanoid';
 import userModel from "../../../DB/models/user.model.js";
 import { sendEmail } from '../../utls/email.js';
-import { customAlphabet } from 'nanoid';
 
 const register = async (req, res) => {
     try {
@@ -28,9 +28,12 @@ const login = async (req, res) => {
         if (!user) return res.status(400).json({ messAge: "invalid eMail" });
 
         if (user.status == 'InActive') return res.status(400).json({ messAge: "your account is blocked" });
+        
+        if(! user.confirmEmail)  return res.status(400).json({ message: "plz confirm your email" });
 
         if (! await bcrypt.compare(password, user.password))// not Match passs
             return res.status(400).json({ message: "invalid password" });
+
 
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.LOGIN_SEG);
         return res.status(200).json({ message: "ucess login", token })

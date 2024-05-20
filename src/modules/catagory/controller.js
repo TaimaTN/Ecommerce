@@ -47,7 +47,7 @@ const create = async (req, res) => {
         //  return res.json( path);//
 
         const { secure_url, public_id } = await cloudinary.uploader.upload(path, {
-            folder: 'tecomerce/catagory1',
+            folder: `${process.env.STORE_NAME}/catagory1`,
         })
         // .then(async () => {
         //     const catagory = await catagoryModel.create({ name, slug: slugify(name), image: { secure_url, public_id } });
